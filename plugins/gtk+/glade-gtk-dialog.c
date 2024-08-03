@@ -151,23 +151,39 @@ G_GNUC_END_IGNORE_DEPRECATIONS
       if (size > -1)
         glade_widget_property_set (glade_widget_get_from_gobject (child),
                                    "size", size);
+
+      if (GTK_IS_FILE_CHOOSER_DIALOG (object)) {
+        GtkFileChooserAction action = gtk_file_chooser_get_action (GTK_FILE_CHOOSER (GTK_DIALOG (object)));
+        switch (action) {
+          case GTK_FILE_CHOOSER_ACTION_OPEN:
+            gtk_dialog_add_button (GTK_DIALOG (object), _("_Open"), GTK_RESPONSE_OK); break;
+          case GTK_FILE_CHOOSER_ACTION_SAVE:
+            gtk_dialog_add_button (GTK_DIALOG (object), _("_Save"), GTK_RESPONSE_OK); break;
+          case GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER:
+            gtk_dialog_add_button (GTK_DIALOG (object), _("_Select"), GTK_RESPONSE_OK); break;
+          case GTK_FILE_CHOOSER_ACTION_CREATE_FOLDER:
+            gtk_dialog_add_button (GTK_DIALOG (object), _("_Create"), GTK_RESPONSE_OK); break;
+        }
+        gtk_dialog_add_button (GTK_DIALOG (object), _("_Cancel"), GTK_RESPONSE_CANCEL);
+
+      }
     }
 
   /* Only set these on the original create. */
   if (reason == GLADE_CREATE_USER)
     {
-      /* HIG compliant spacing defaults on dialogs */
+      /* HIG complient spacing defaults on dialogs */
       glade_widget_property_set (vbox_widget, "spacing", 2);
-
-      if (GTK_IS_ABOUT_DIALOG (object) ||
-          GTK_IS_FILE_CHOOSER_DIALOG (object))
-        glade_widget_property_set (vbox_widget, "size", 3);
-      else
-        glade_widget_property_set (vbox_widget, "size", 2);
+      glade_widget_property_set (vbox_widget, "size", 2);
 
       glade_widget_property_set (actionarea_widget, "size", 2);
       glade_widget_property_set (actionarea_widget, "layout-style",
                                  GTK_BUTTONBOX_END);
+
+      /* Do not use action areas for file choosers, they have their buttons in the header bar */
+      if (GTK_IS_FILE_CHOOSER_DIALOG (object)) {
+        glade_widget_property_set (actionarea_widget, "size", 0);
+      }
     }
 }
 
