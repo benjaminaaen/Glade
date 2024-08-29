@@ -42,6 +42,7 @@
 #endif
 
 #define APPLICATION_NAME (_("Glade"))
+#define APPLICATION_ID "org.gnome.Glade"
 
 
 /* Application arguments */
@@ -92,9 +93,8 @@ startup (GApplication *application)
   glade_setup_log_handlers ();
 
   g_set_application_name (APPLICATION_NAME);
-
-  gtk_window_set_default_icon_name ("glade");
-
+  g_set_prgname (APPLICATION_ID);
+  gtk_window_set_default_icon_name (APPLICATION_ID);
 }
 
 static void
@@ -185,7 +185,7 @@ main (int argc, char *argv[])
   _init_cairo_xlib_workaround ();
 #endif
 
-  app = gtk_application_new ("org.gnome.Glade", G_APPLICATION_HANDLES_OPEN);
+  app = gtk_application_new (APPLICATION_ID, G_APPLICATION_HANDLES_OPEN);
 
   g_application_set_option_context_summary (G_APPLICATION (app),
                                             N_("Create or edit user interface designs for GTK+ or GNOME applications."));
