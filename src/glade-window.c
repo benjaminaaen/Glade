@@ -636,7 +636,7 @@ recent_add (GladeWindow *window, const gchar *path)
   recent_data->description = NULL;
   recent_data->mime_type = "application/x-glade";
   recent_data->app_name = (gchar *) g_get_application_name ();
-  recent_data->app_exec = g_strjoin (" ", g_get_prgname (), "%u", NULL);
+  recent_data->app_exec = g_strdup ("glade %u");
   recent_data->groups = NULL;
   recent_data->is_private = FALSE;
 
