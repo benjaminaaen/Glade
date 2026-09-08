@@ -1277,7 +1277,11 @@ glade_util_url_show (const gchar *url)
 time_t
 glade_util_get_file_mtime (const gchar *filename, GError **error)
 {
+#ifdef G_OS_WIN32
+  GStatBuf info;
+#else
   struct stat info;
+#endif
   gint retval;
 
   g_return_val_if_fail (filename, 0);
