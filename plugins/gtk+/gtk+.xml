@@ -2031,6 +2031,16 @@
           <tooltip>Set the description of the Press atk action</tooltip>
         </property>
       </properties>
+      <packing-properties>
+        <property id="expand" name="Expand" default="False" save-always="True">
+          <spec>glade_standard_boolean_spec</spec>
+          <tooltip>Whether the cell renderer should expand to fill available space in the layout</tooltip>
+        </property>
+        <property id="align" name="Align" default="True" save-always="True">
+          <spec>glade_standard_boolean_spec</spec>
+          <tooltip>Whether the cell should be aligned with the other cells in the column/row</tooltip>
+        </property>
+      </packing-properties>
     </glade-widget-class>
 
     <glade-widget-class name="GtkComboBoxText" generic-name="comboboxtext" title="Combo Box Text">
@@ -3685,6 +3695,16 @@
       <signals>
         <signal id="no-matches" since="3.14"/>
       </signals>
+      <packing-properties>
+        <property id="expand" name="Expand" default="False" save-always="True">
+          <spec>glade_standard_boolean_spec</spec>
+          <tooltip>Whether the cell renderer should expand to fill available space in the layout</tooltip>
+        </property>
+        <property id="align" name="Align" default="True" save-always="True">
+          <spec>glade_standard_boolean_spec</spec>
+          <tooltip>Whether the cell should be aligned with the other cells in the column/row</tooltip>
+        </property>
+      </packing-properties>
     </glade-widget-class>
 
     <glade-widget-class name="GtkIconFactory" generic-name="iconfactory" title="Icon Factory" toplevel="True" deprecated-since="3.10">
@@ -3878,6 +3898,14 @@
             <type>GParamInt</type>
           </parameter-spec>
         </property>
+        <property id="expand" name="Expand" default="False" save-always="True">
+          <spec>glade_standard_boolean_spec</spec>
+          <tooltip>Whether the cell renderer should expand to fill available space in the layout</tooltip>
+        </property>
+        <property id="align" name="Align" default="True" save-always="True">
+          <spec>glade_standard_boolean_spec</spec>
+          <tooltip>Whether the cell should be aligned with the other cells in the column/row</tooltip>
+        </property>
       </packing-properties>
     </glade-widget-class>
 
@@ -3932,6 +3960,14 @@
           <parameter-spec>
             <type>GParamInt</type>
           </parameter-spec>
+        </property>
+        <property id="expand" name="Expand" default="False" save-always="True">
+          <spec>glade_standard_boolean_spec</spec>
+          <tooltip>Whether the cell renderer should expand to fill available space in the layout</tooltip>
+        </property>
+        <property id="align" name="Align" default="True" save-always="True">
+          <spec>glade_standard_boolean_spec</spec>
+          <tooltip>Whether the cell should be aligned with the other cells in the column/row</tooltip>
         </property>
       </packing-properties>
     </glade-widget-class>

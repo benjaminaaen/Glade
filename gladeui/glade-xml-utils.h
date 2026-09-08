@@ -78,6 +78,7 @@ typedef struct _GladeProject        GladeProject;
 #define GLADE_XML_TAG_NAME                        "name"
 #define GLADE_XML_TAG_CHILD                       "child"
 #define GLADE_XML_TAG_PACKING                     "packing"
+#define GLADE_XML_TAG_CELL_PACKING                "cell-packing"
 #define GLADE_XML_TAG_PLACEHOLDER                 "placeholder"
 #define GLADE_XML_TAG_INTERNAL_CHILD              "internal-child"
 #define GLADE_XML_TAG_I18N_TRUE                   "yes"

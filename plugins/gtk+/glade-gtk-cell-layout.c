@@ -136,6 +136,15 @@ glade_gtk_cell_layout_get_child_property (GladeWidgetAdaptor *adaptor,
 
       g_list_free (cells);
     }
+  else if (strcmp (property_name, "expand") == 0 ||
+           strcmp (property_name, "align") == 0)
+    {
+      /* Forward cell-area packing properties to the underlying GtkCellArea */
+      GtkCellArea *area = gtk_cell_layout_get_area (GTK_CELL_LAYOUT (container));
+      if (area)
+        gtk_cell_area_cell_get_property (area, GTK_CELL_RENDERER (child),
+                                         property_name, value);
+    }
   else
     /* Chain Up */
     GLADE_WIDGET_ADAPTOR_GET_ADAPTOR_CLASS
@@ -157,6 +166,15 @@ glade_gtk_cell_layout_set_child_property (GladeWidgetAdaptor *adaptor,
       gtk_cell_layout_reorder (GTK_CELL_LAYOUT (container),
                                GTK_CELL_RENDERER (child),
                                g_value_get_int (value));
+    }
+  else if (strcmp (property_name, "expand") == 0 ||
+           strcmp (property_name, "align") == 0)
+    {
+      /* Forward cell-area packing properties to the underlying GtkCellArea */
+      GtkCellArea *area = gtk_cell_layout_get_area (GTK_CELL_LAYOUT (container));
+      if (area)
+        gtk_cell_area_cell_set_property (area, GTK_CELL_RENDERER (child),
+                                         property_name, value);
     }
   else
     /* Chain Up */
@@ -213,6 +231,47 @@ glade_gtk_cell_renderer_read_attributes (GladeWidget  *widget,
     }
 }
 
+/* GtkBuilder uses <cell-packing> instead of <packing> for cell renderers
+ * inside a GtkCellLayout, so we read/write that tag here.
+ * GLADE_XML_TAG_CELL_PACKING is declared in gladeui/glade-xml-utils.h and
+ * whitelisted by glade_property_write() alongside <packing>/<widget>/<template>.
+ */
+
+static void
+glade_gtk_cell_layout_read_cell_packing (GladeWidget  *child_widget,
+                                         GladeXmlNode *node)
+{
+  GladeXmlNode *packing_node, *iter_node;
+  GladeProperty *property;
+  gchar *name, *prop_name;
+
+  if ((packing_node =
+       glade_xml_search_child (node, GLADE_XML_TAG_CELL_PACKING)) == NULL)
+    return;
+
+  for (iter_node = glade_xml_node_get_children (packing_node);
+       iter_node; iter_node = glade_xml_node_next (iter_node))
+    {
+      if (!glade_xml_node_verify_silent (iter_node, GLADE_XML_TAG_PROPERTY))
+        continue;
+
+      if (!(name = glade_xml_get_property_string_required
+            (iter_node, GLADE_XML_TAG_NAME, NULL)))
+        continue;
+
+      prop_name = glade_util_read_prop_name (name);
+
+      if ((property =
+           glade_widget_get_pack_property (child_widget, prop_name)) != NULL)
+        glade_property_read (property,
+                             glade_widget_get_project (child_widget),
+                             iter_node);
+
+      g_free (prop_name);
+      g_free (name);
+    }
+}
+
 void
 glade_gtk_cell_layout_read_child (GladeWidgetAdaptor *adaptor,
                                   GladeWidget        *widget,
@@ -245,6 +304,8 @@ glade_gtk_cell_layout_read_child (GladeWidgetAdaptor *adaptor,
           if (!internal_name)
             {
               glade_widget_add_child (widget, child_widget, FALSE);
+
+              glade_gtk_cell_layout_read_cell_packing (child_widget, node);
 
               glade_gtk_cell_renderer_read_attributes (child_widget, node);
 
@@ -310,6 +371,33 @@ glade_gtk_cell_renderer_write_attributes (GladeWidget     *widget,
     glade_xml_node_append_child (node, attrs_node);
 }
 
+static void
+glade_gtk_cell_layout_write_cell_packing (GladeWidget     *widget,
+                                          GladeXmlContext *context,
+                                          GladeXmlNode    *node)
+{
+  GladeXmlNode *packing_node;
+  GList *props;
+
+  packing_node = glade_xml_node_new (context, GLADE_XML_TAG_CELL_PACKING);
+
+  for (props = glade_widget_get_packing_properties (widget); props; props = props->next)
+    {
+      GladeProperty    *property = props->data;
+      GladePropertyDef *def = glade_property_get_def (property);
+
+      if (glade_property_def_save (def) &&
+          glade_property_get_enabled (property))
+        glade_property_write (GLADE_PROPERTY (property), context, packing_node);
+    }
+
+  /* Only append the node if any packing property was actually written */
+  if (glade_xml_node_get_children (packing_node))
+    glade_xml_node_append_child (node, packing_node);
+  else
+    glade_xml_node_delete (packing_node);
+}
+
 void
 glade_gtk_cell_layout_write_child (GladeWidgetAdaptor *adaptor,
                                    GladeWidget        *widget,
@@ -329,6 +417,12 @@ glade_gtk_cell_layout_write_child (GladeWidgetAdaptor *adaptor,
 
   /* Write out the widget */
   glade_widget_write (widget, context, child_node);
+
+  /* Write out cell-packing properties (expand, align, ...) - only for real
+   * cell renderer children, not for internal children like ComboBox's entry.
+   */
+  if (!glade_widget_get_internal (widget))
+    glade_gtk_cell_layout_write_cell_packing (widget, context, child_node);
 
   glade_gtk_cell_renderer_write_attributes (widget, context, child_node);
 }

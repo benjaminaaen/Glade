@@ -1222,8 +1222,9 @@ glade_property_write (GladeProperty   *property,
   g_return_if_fail (GLADE_IS_PROPERTY (property));
   g_return_if_fail (node != NULL);
 
-  /* This code should work the same for <packing>, <widget> and <template> */
+  /* This code should work the same for <packing>, <cell-packing>, <widget> and <template> */
   if (!(glade_xml_node_verify_silent (node, GLADE_XML_TAG_PACKING) ||
+        glade_xml_node_verify_silent (node, GLADE_XML_TAG_CELL_PACKING) ||
         glade_xml_node_verify_silent (node, GLADE_XML_TAG_WIDGET) ||
         glade_xml_node_verify_silent (node, GLADE_XML_TAG_TEMPLATE)))
     return;
