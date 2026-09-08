@@ -57,6 +57,31 @@ glade_gtk_cell_layout_add_verify (GladeWidgetAdaptor *adaptor,
   return TRUE;
 }
 
+static void
+glade_gtk_cell_layout_set_default_packing (GObject *container, GObject *child)
+{
+  GtkCellArea *area = gtk_cell_layout_get_area (GTK_CELL_LAYOUT (container));
+  GValue value = G_VALUE_INIT;
+
+  if (!area)
+    return;
+
+  /* Keep in sync with the defaults declared in gtk+.xml for the
+   * "expand" and "align" packing properties.
+   */
+  g_value_init (&value, G_TYPE_BOOLEAN);
+
+  g_value_set_boolean (&value, FALSE);
+  gtk_cell_area_cell_set_property (area, GTK_CELL_RENDERER (child),
+                                   "expand", &value);
+
+  g_value_set_boolean (&value, TRUE);
+  gtk_cell_area_cell_set_property (area, GTK_CELL_RENDERER (child),
+                                   "align", &value);
+
+  g_value_unset (&value);
+}
+
 void
 glade_gtk_cell_layout_add_child (GladeWidgetAdaptor *adaptor,
                                  GObject            *container,
@@ -70,7 +95,9 @@ glade_gtk_cell_layout_add_child (GladeWidgetAdaptor *adaptor,
     gtk_icon_view_set_model (GTK_ICON_VIEW (container), NULL);
 
   gtk_cell_layout_pack_start (GTK_CELL_LAYOUT (container),
-                              GTK_CELL_RENDERER (child), TRUE);
+                              GTK_CELL_RENDERER (child), FALSE);
+
+  glade_gtk_cell_layout_set_default_packing (container, child);
 
   if (gmodel)
     gtk_icon_view_set_model (GTK_ICON_VIEW (container),
@@ -103,7 +130,9 @@ glade_gtk_cell_layout_remove_child (GladeWidgetAdaptor *adaptor,
       if (l->data == NULL)
         continue;
 
-      gtk_cell_layout_pack_start (layout, GTK_CELL_RENDERER (l->data), TRUE);
+      gtk_cell_layout_pack_start (layout, GTK_CELL_RENDERER (l->data), FALSE);
+
+      glade_gtk_cell_layout_set_default_packing (container, l->data);
 
       /* Remove our transient reference */
       g_object_unref (l->data);
