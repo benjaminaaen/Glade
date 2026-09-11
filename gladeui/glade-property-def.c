@@ -37,6 +37,7 @@
 
 #include <string.h>
 #include <stdlib.h>
+#include <float.h>
 #include <glib/gi18n-lib.h>
 
 #include "glade.h"
@@ -461,34 +462,40 @@ static gchar *
 glade_dtostr (double number, gdouble epsilon)
 {
   char *str = g_malloc (G_ASCII_DTOSTR_BUF_SIZE + 1);
-  char real_number[G_ASCII_DTOSTR_BUF_SIZE + 1];
-  const gchar *decimal = NULL;
+  gdouble abs_epsilon;
   int i;
 
-  g_ascii_dtostr (str, G_ASCII_DTOSTR_BUF_SIZE, number);
-  g_ascii_dtostr (real_number, G_ASCII_DTOSTR_BUF_SIZE, number);
-  decimal = g_strstr_len (real_number, G_ASCII_DTOSTR_BUF_SIZE, ".");
+  /* @epsilon is scaled to the magnitude of @number since it is meant to be
+   * a relative (not absolute) precision threshold; without this a value
+   * like 100.5 would need an unreasonably tiny absolute epsilon to be
+   * considered "close enough" to its rounded counterpart.
+   */
+  abs_epsilon = epsilon * MAX (1.0, ABS (number));
 
-  if (!decimal)
-    return str;
-
-  decimal++;
-
-  for (i = 1; i <= 20; i++)
+  /* Find the smallest number of decimal places that, once @number is
+   * *properly rounded* (not truncated) to that many places, is still
+   * within @abs_epsilon of the real value. Using "%.*f" here (instead of
+   * copying digits verbatim from the unrounded decimal expansion) is what
+   * makes this a real rounding operation: e.g. a float like 0.02f is
+   * actually stored as something like 0.019999999552965164, and simply
+   * truncating its digits can never produce "0.02", it would just keep
+   * appending more of the "wrong" digits (0.0199999...) forever.
+   */
+  for (i = 0; i <= 20; i++)
     {
-      gint len = (decimal - real_number) + i;
+      gchar format[8];
       double rounded;
 
-      /* add up to i decimal points */
-      str[len] = real_number[len];
-      str[len+1] = '\0';
+      g_snprintf (format, sizeof (format), "%%.%df", i);
+      g_ascii_formatd (str, G_ASCII_DTOSTR_BUF_SIZE, format, number);
 
       rounded = g_ascii_strtod (str, NULL);
 
-      if (ABS (rounded - number) <= epsilon)
+      if (ABS (rounded - number) <= abs_epsilon)
         return str;
     }
 
+  g_ascii_dtostr (str, G_ASCII_DTOSTR_BUF_SIZE, number);
   return str;
 }
 
@@ -580,11 +587,20 @@ glade_property_def_make_string_from_gvalue (GladePropertyDef *property_def,
   else if (G_IS_PARAM_SPEC_UINT64 (property_def->pspec))
     string = g_strdup_printf ("%" G_GUINT64_FORMAT, g_value_get_uint64 (value));
   else if (G_IS_PARAM_SPEC_FLOAT (property_def->pspec))
+    /* GParamSpecFloat defaults to an unrealistically tiny epsilon (1e-30)
+     * which can never be satisfied once float-to-double precision loss is
+     * taken into account, so make sure we never use anything tighter than
+     * FLT_EPSILON here (otherwise values like 0.55 get written out as
+     * 0.5500000119209289 instead of being rounded correctly).
+     */
     string = glade_dtostr (g_value_get_float (value),
-                           ((GParamSpecFloat *)property_def->pspec)->epsilon);
+                           MAX (((GParamSpecFloat *)property_def->pspec)->epsilon,
+                                FLT_EPSILON));
   else if (G_IS_PARAM_SPEC_DOUBLE (property_def->pspec))
+    /* Same rationale as above, but for doubles (see G_IS_PARAM_SPEC_FLOAT) */
     string = glade_dtostr (g_value_get_double (value),
-                           ((GParamSpecDouble *)property_def->pspec)->epsilon);
+                           MAX (((GParamSpecDouble *)property_def->pspec)->epsilon,
+                                DBL_EPSILON));
   else if (G_IS_PARAM_SPEC_STRING (property_def->pspec))
     {
       string = g_value_dup_string (value);

@@ -4080,7 +4080,7 @@
             <type>GParamBoolean</type>
           </parameter-spec>
         </property>
-        <property id="xalign" name="Horizontal Alignment" common="True" save="False" custom-layout="True"/>
+        <property id="xalign" name="Horizontal Alignment" common="True" save="False" save-always="True" custom-layout="True"/>
         <property id="attr-xalign" name="Horizontal Alignment column" save="False" default="-1" custom-layout="True">
           <parameter-spec>
             <type>GParamInt</type>
@@ -4093,7 +4093,7 @@
             <type>GParamBoolean</type>
           </parameter-spec>
         </property>
-        <property id="yalign" name="Vertical Alignment" common="True" save="False" custom-layout="True"/>
+        <property id="yalign" name="Vertical Alignment" common="True" save="False" save-always="True" custom-layout="True"/>
         <property id="attr-yalign" name="Vertical Alignment column" save="False" default="-1" custom-layout="True">
           <parameter-spec>
             <type>GParamInt</type>
