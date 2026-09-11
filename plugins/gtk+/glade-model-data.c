@@ -1271,6 +1271,7 @@ glade_eprop_model_data_create_input (GladeEditorProperty *eprop)
   gtk_container_add (GTK_CONTAINER (swin), GTK_WIDGET (eprop_data->view));
 
   g_object_set (G_OBJECT (vbox), "height-request", 300, NULL);
+  gtk_widget_set_vexpand (vbox, TRUE);
 
   gtk_widget_show_all (vbox);
   return vbox;

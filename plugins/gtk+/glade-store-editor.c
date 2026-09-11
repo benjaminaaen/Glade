@@ -142,7 +142,7 @@ glade_store_editor_new (GladeWidgetAdaptor *adaptor, GladeEditable *embed)
   frame = gtk_frame_new (NULL);
   gtk_frame_set_label_widget (GTK_FRAME (frame), glade_editor_property_get_item_label (eprop));
   gtk_frame_set_shadow_type (GTK_FRAME (frame), GTK_SHADOW_NONE);
-  gtk_box_pack_start (GTK_BOX (store_editor), frame, FALSE, FALSE, 12);
+  gtk_box_pack_start (GTK_BOX (store_editor), frame, TRUE, TRUE, 12);
 
   /* Alignment/Vbox in frame... */
   alignment = gtk_alignment_new (0.5F, 0.5F, 1.0F, 1.0F);
@@ -159,7 +159,7 @@ glade_store_editor_new (GladeWidgetAdaptor *adaptor, GladeEditable *embed)
   gtk_label_set_line_wrap (GTK_LABEL (label), TRUE);
   gtk_label_set_line_wrap_mode (GTK_LABEL (label), PANGO_WRAP_WORD);
   gtk_box_pack_start (GTK_BOX (vbox), label, FALSE, FALSE, 6);
-  gtk_box_pack_start (GTK_BOX (vbox), GTK_WIDGET (eprop), FALSE, FALSE, 4);
+  gtk_box_pack_start (GTK_BOX (vbox), GTK_WIDGET (eprop), TRUE, TRUE, 4);
 
 
   if (glade_widget_adaptor_get_object_type (adaptor) == GTK_TYPE_LIST_STORE ||
@@ -175,7 +175,7 @@ glade_store_editor_new (GladeWidgetAdaptor *adaptor, GladeEditable *embed)
       frame = gtk_frame_new (NULL);
       gtk_frame_set_label_widget (GTK_FRAME (frame), glade_editor_property_get_item_label (eprop));
       gtk_frame_set_shadow_type (GTK_FRAME (frame), GTK_SHADOW_NONE);
-      gtk_box_pack_start (GTK_BOX (store_editor), frame, FALSE, FALSE, 12);
+      gtk_box_pack_start (GTK_BOX (store_editor), frame, TRUE, TRUE, 12);
 
       /* Alignment/Vbox in frame... */
       alignment = gtk_alignment_new (0.5F, 0.5F, 1.0F, 1.0F);
@@ -192,7 +192,7 @@ glade_store_editor_new (GladeWidgetAdaptor *adaptor, GladeEditable *embed)
       gtk_label_set_line_wrap (GTK_LABEL (label), TRUE);
       gtk_label_set_line_wrap_mode (GTK_LABEL (label), PANGO_WRAP_WORD);
       gtk_box_pack_start (GTK_BOX (vbox), label, FALSE, FALSE, 6);
-      gtk_box_pack_start (GTK_BOX (vbox), GTK_WIDGET (eprop), FALSE, FALSE, 4);
+      gtk_box_pack_start (GTK_BOX (vbox), GTK_WIDGET (eprop), TRUE, TRUE, 4);
     }
 
   gtk_widget_show_all (GTK_WIDGET (store_editor));
